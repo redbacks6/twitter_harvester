@@ -16,20 +16,24 @@ keyfile = '/Users/lukejones/Developer/twitter_harvester/auth.txt' #change to com
 
 def main():
 
+	#set the keys
 	consumer_key, consumer_secret, access_token_key, access_token_secret = set_keys(keyfile)
 
+	#create api connection
 	api = twitter.Api(consumer_key=consumer_key,
                       consumer_secret=consumer_secret,
                       access_token_key=access_token_key,
                       access_token_secret=access_token_secret)
 
+	#search for tweets within 100kms of brisbane city
 	tweets = api.GetSearch(geocode= (27.4625, 153.0243, '100km'))
 
+	#print them for fun
 	for tweet in tweets:
 		print tweet
 
 
-#set the keys
+#Helper method to set the keys
 def set_keys(keyfile):
 	with open(keyfile) as textfile:
 		keys = textfile.readline().split()
