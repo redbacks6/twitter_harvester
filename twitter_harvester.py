@@ -12,6 +12,15 @@ import couchdb
 import csv
 from pprint import pprint as pp
 
+"""
+Note: I have stored my keys locally in a space delminated text file as I don't want to share on GitHub.
+Just store the keys in the format;
+consumer_key consumer_secret access_token_key access_token_secret
+and point the keyfile to it and everything should work fine.
+
+Alternatively just drop them into the relevant fields.
+"""
+
 keyfile = '/Users/lukejones/Developer/twitter_harvester/auth.txt' #change to command line arg later
 
 def main():
