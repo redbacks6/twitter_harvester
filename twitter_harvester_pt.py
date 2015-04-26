@@ -7,7 +7,7 @@ Student ID: 654645
 Date: 25 April 2015
 """
 
-import tweepy
+import twitter
 import couchdb
 import csv
 import json
@@ -29,16 +29,24 @@ def main():
 	#set the keys
 	consumer_key, consumer_secret, access_token_key, access_token_secret = set_keys(keyfile)
 
-	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-	auth.set_access_token(access_token_key, access_token_secret)
+	#create api connection
+	api = twitter.Api(consumer_key=consumer_key,
+                      consumer_secret=consumer_secret,
+                      access_token_key=access_token_key,
+                      access_token_secret=access_token_secret)
 
-	api = tweepy.API(auth)
-	places = api.geo_search(query='Brisbane', granularity="city")
-	place_id = places[0].id
+	#search for tweets within 100kms of brisbane city
+	statuss = api.GetFollowers(screen_name='@magpiesaff')
 
-	tweets = api.search(q="place:%s" % place_id)
-	for tweet in tweets:
-	    print tweet.text + " | " + tweet.place.name if tweet.place else "Undefined place"
+	for status in statuss:
+		print status.name
+
+	#geocode= (-27.4709, 153.0235, '100km')
+
+	# #print them for fun
+	# for tweet in tweets:
+	# 	print tweet
+
 
 
 #Helper method to set the keys

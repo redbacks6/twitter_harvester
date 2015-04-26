@@ -4,13 +4,14 @@ Twitter harvester
 Author: Luke Jones
 Email: lukealexanderjones@gmail.com/lukej1@student.unimelb.edu.au
 Student ID: 654645
-Date: 25 April 2015
+Date: 26 April 2015
 """
 
-import twitter
+import tweepy
 import couchdb
 import csv
 import json
+import sys
 from pprint import pprint as pp
 
 """
@@ -22,26 +23,39 @@ and point the keyfile to it and everything should work fine.
 Alternatively just drop them into the relevant fields.
 """
 
-keyfile = '/Users/lukejones/Developer/twitter_harvester/auth.txt' #change to command line arg later
+##TODO change to command line argument - easier here for now
+keyfile = '/Users/lukejones/Developer/twitter_harvester/auth.txt'
 
 def main():
 
 	#set the keys
 	consumer_key, consumer_secret, access_token_key, access_token_secret = set_keys(keyfile)
 
-	#create api connection
-	api = twitter.Api(consumer_key=consumer_key,
-                      consumer_secret=consumer_secret,
-                      access_token_key=access_token_key,
-                      access_token_secret=access_token_secret)
+	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+	auth.set_access_token(access_token_key, access_token_secret)
 
-	#search for tweets within 100kms of brisbane city
-	tweets = api.GetSearch(geocode= (27.4625, 153.0243, '100km'))
+	# If using the REST API then use this constructor
+	# api = tweepy.API(auth)
 
-	#print them for fun
-	for tweet in tweets:
-		print pp(json.loads(tweet))
+	# Constructor for streaming API
+	sapi = tweepy.streaming.Stream(auth=auth, listener=CustomStreamListener())    
+	sapi.filter(locations=[153.02,-27.47,153.12,-27.26])
 
+
+class CustomStreamListener(tweepy.StreamListener):
+    def on_status(self, status):
+        
+        #DO SOMETHING WITH THE TWEETS HERE!
+        #Print the json object to the screen for now...
+        print pp(status._json)
+
+    def on_error(self, status_code):
+        print >> sys.stderr, 'Encountered error with status code:', status_code
+        return True # Don't kill the stream
+
+    def on_timeout(self):
+        print >> sys.stderr, 'Timeout...'
+        return True # Don't kill the stream
 
 
 #Helper method to set the keys
