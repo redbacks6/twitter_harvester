@@ -1,2 +1,8 @@
 
 auth.txt
+
+couchDB.txt
+
+test_script.yaml
+
+*.pyc

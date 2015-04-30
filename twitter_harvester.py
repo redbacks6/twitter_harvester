@@ -4,7 +4,7 @@ Twitter harvester
 Author: Luke Jones
 Email: lukealexanderjones@gmail.com/lukej1@student.unimelb.edu.au
 Student ID: 654645
-Date: 26 April 2015
+Date: 30 April 2015
 """
 
 import tweepy
@@ -25,8 +25,22 @@ Alternatively just drop them into the relevant fields.
 
 ##TODO change to command line argument - easier here for now
 keyfile = '/Users/lukejones/Developer/twitter_harvester/auth.txt'
+couchlogin = '/Users/lukejones/Developer/twitter_harvester/couchDB.txt'
 
 def main():
+
+	#setup database connection https://pythonhosted.org/CouchDB/getting-started.html
+	couch = couchdb.Server('http://115.146.95.216:5984/')
+	username, password = get_login(couchlogin)
+	couch.resource.credentials = (username, password)
+
+	#check if database created if Exception create it
+	try:
+		db = couch['brisbanetweets']
+	except Exception, e:
+		db = couch.create('brisbanetweets')
+
+	print db
 
 	#set the keys
 	consumer_key, consumer_secret, access_token_key, access_token_secret = set_keys(keyfile)
@@ -35,27 +49,32 @@ def main():
 	auth.set_access_token(access_token_key, access_token_secret)
 
 	# If using the REST API then use this constructor
-	# api = tweepy.API(auth)
+	api = tweepy.API(auth)
 
 	# Constructor for streaming API
-	sapi = tweepy.streaming.Stream(auth=auth, listener=CustomStreamListener())    
+	sapi = tweepy.streaming.Stream(auth=auth, listener=CustomStreamListener(api, db))    
 	sapi.filter(locations=[153.02,-27.47,153.12,-27.26])
 
-
+#override the base listener
 class CustomStreamListener(tweepy.StreamListener):
-    def on_status(self, status):
-        
-        #DO SOMETHING WITH THE TWEETS HERE!
-        #Print the json object to the screen for now...
-        print pp(status._json)
+	
+	def __init__(self, api, db):
+		self.db = db
+		self.api = api
+		super(tweepy.StreamListener, self).__init__()
 
-    def on_error(self, status_code):
-        print >> sys.stderr, 'Encountered error with status code:', status_code
-        return True # Don't kill the stream
+	def on_status(self, status):
+		
+		#Add to database
+		self.db.save(status._json)
+		
+	def on_error(self, status_code):
+		print >> sys.stderr, 'Encountered error with status code:', status_code
+		return True # Don't kill the stream
 
-    def on_timeout(self):
-        print >> sys.stderr, 'Timeout...'
-        return True # Don't kill the stream
+	def on_timeout(self):
+		print >> sys.stderr, 'Timeout...'
+		return True # Don't kill the stream
 
 
 #Helper method to set the keys
@@ -69,6 +88,16 @@ def set_keys(keyfile):
 		access_token_secret = keys[3]
 
 	return consumer_key, consumer_secret, access_token_key, access_token_secret
+
+#Helper method to set the keys
+def get_login(loginfile):
+	with open(loginfile) as textfile:
+		logins = textfile.readline().split()
+
+		username = logins[0]
+		password = logins[1]
+
+	return username, password
 
 # Run the Main Method
 if __name__ == '__main__':
