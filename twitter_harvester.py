@@ -24,23 +24,24 @@ Alternatively just drop them into the relevant fields.
 """
 
 ##TODO change to command line argument - easier here for now
-keyfile = '/Users/lukejones/Developer/twitter_harvester/auth.txt'
-couchlogin = '/Users/lukejones/Developer/twitter_harvester/couchDB.txt'
+keyfile = sys.argv[1] #'/Users/lukejones/Developer/twitter_harvester/auth.txt'
+couchlogin = sys.argv[2] #'/Users/lukejones/Developer/twitter_harvester/couchDB.txt'
+couchserver = sys.argv[3] #'http://115.146.95.216:5984/'
+database = sys.argv[4] #'brisbanetweets'
+location = [float(x) for x in sys.argv[5].split(',')] #[153.81,-27.75,153.24,-27.11]
 
 def main():
 
 	#setup database connection https://pythonhosted.org/CouchDB/getting-started.html
-	couch = couchdb.Server('http://115.146.95.216:5984/')
+	couch = couchdb.Server(couchserver)
 	username, password = get_login(couchlogin)
 	couch.resource.credentials = (username, password)
 
 	#check if database created if Exception create it
 	try:
-		db = couch['brisbanetweets']
+		db = couch[database]
 	except Exception, e:
-		db = couch.create('brisbanetweets')
-
-	print db
+		db = couch.create(database)
 
 	#set the keys
 	consumer_key, consumer_secret, access_token_key, access_token_secret = set_keys(keyfile)
@@ -53,7 +54,8 @@ def main():
 
 	# Constructor for streaming API
 	sapi = tweepy.streaming.Stream(auth=auth, listener=CustomStreamListener(api, db))    
-	sapi.filter(locations=[153.02,-27.47,153.12,-27.26])
+	sapi.filter(locations=location)
+
 
 #override the base listener
 class CustomStreamListener(tweepy.StreamListener):
