@@ -23,12 +23,12 @@ and point the keyfile to it and everything should work fine.
 Alternatively just drop them into the relevant fields.
 """
 
-##TODO change to command line argument - easier here for now
-keyfile = sys.argv[1] #'/Users/lukejones/Developer/twitter_harvester/auth.txt'
-couchlogin = sys.argv[2] #'/Users/lukejones/Developer/twitter_harvester/couchDB.txt'
-couchserver = sys.argv[3] #'http://115.146.95.216:5984/'
-database = sys.argv[4] #'brisbanetweets'
-location = [float(x) for x in sys.argv[5].split(',')] #[153.81,-27.75,153.24,-27.11]
+##Command line args
+keyfile = sys.argv[1] #'/Users/lukejones/Developer/twitter_harvester/auth.txt' - space delinated keys
+couchlogin = sys.argv[2] #'/Users/lukejones/Developer/twitter_harvester/couchDB.txt' - space delineated login
+couchserver = sys.argv[3] #'http://115.146.95.216:5984/' - as a string
+database = sys.argv[4] #'brisbanetweets' as a string
+location = [float(x) for x in sys.argv[5].split(',')] #'153.81,-27.75,153.24,-27.11' - as a string
 
 def main():
 
