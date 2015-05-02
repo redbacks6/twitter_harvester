@@ -7,6 +7,9 @@
 #install couchdb
 #sudo apt-get install couchdb -y
 
+#install screen
+#sudo apt-get install screen
+
 #install pip
 #sudo apt-get install python-pip
 #easy_install -U pip
