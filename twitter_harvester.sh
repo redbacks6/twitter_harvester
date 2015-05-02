@@ -11,9 +11,6 @@
 #sudo apt-get install python-pip
 #easy_install -U pip
 
-#install python Daemon
-#sudo apt-get install python-daemon
-
 #install python modules
 #sudo pip install tweepy
 #sudo pip install CouchDB
