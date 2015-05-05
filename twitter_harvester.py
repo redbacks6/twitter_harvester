@@ -28,7 +28,7 @@ keyfile = sys.argv[1] #'/Users/lukejones/Developer/twitter_harvester/auth.txt' -
 couchlogin = sys.argv[2] #'/Users/lukejones/Developer/twitter_harvester/couchDB.txt' - space delineated login
 couchserver = sys.argv[3] #'http://115.146.95.216:5984/' - as a string
 database = sys.argv[4] #'brisbanetweets' as a string
-location = [float(x) for x in sys.argv[5].split(',')] #'153.81,-27.75,153.24,-27.11' - as a string
+location = [float(x) for x in sys.argv[5].split(',')] #'152.81,-27.75,153.24,-27.11' - as a string
 
 def main():
 
@@ -65,11 +65,18 @@ class CustomStreamListener(tweepy.StreamListener):
 		self.api = api
 		super(tweepy.StreamListener, self).__init__()
 
+	#This is where we do something with our tweets (like add it to the database)
 	def on_status(self, status):
 		
-		#Add to database
-		self.db.save(status._json)
-		
+		#Add the tweet id to the json object as _id
+		#This will override the default doc id in couchDB
+		tweet = status._json
+		tweet['_id'] = status.id_str
+
+		#Check if doc in database, if not add it!
+		if tweet['_id'] not in self.db
+			self.db.save(tweet)
+
 	def on_error(self, status_code):
 		print >> sys.stderr, 'Encountered error with status code:', status_code
 		return True # Don't kill the stream

@@ -8,3 +8,9 @@ test_script.yaml
 *.pyc
 
 1n1c.sh
+
+auth1.txt
+
+couchdb_vol_setup.sh
+
+twitter_harvester_test.py
