@@ -74,8 +74,15 @@ class CustomStreamListener(tweepy.StreamListener):
 		tweet['_id'] = status.id_str
 
 		#Check if doc in database, if not add it!
-		if tweet['_id'] not in self.db
-			self.db.save(tweet)
+		if tweet['_id'] not in self.db:
+			
+			#may raise error if it tried to add document and its in the database
+			try:
+				self.db.save(tweet)
+			
+			#we don't care if its already in the datebase so just don't add it
+			except Exception, e:
+				pass
 
 	def on_error(self, status_code):
 		print >> sys.stderr, 'Encountered error with status code:', status_code
