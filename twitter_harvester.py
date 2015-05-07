@@ -26,7 +26,7 @@ Alternatively just drop them into the relevant fields.
 ##Command line args
 keyfile = sys.argv[1] #'/Users/lukejones/Developer/twitter_harvester/auth.txt' - space delinated keys
 couchlogin = sys.argv[2] #'/Users/lukejones/Developer/twitter_harvester/couchDB.txt' - space delineated login
-couchserver = sys.argv[3] #'http://115.146.95.216:5984/' - as a string
+couchserver = sys.argv[3] #'http://115.146.95.161:5984/' - as a string
 database = sys.argv[4] #'brisbanetweets' as a string
 location = [float(x) for x in sys.argv[5].split(',')] #'152.81,-27.75,153.24,-27.11' - as a string
 

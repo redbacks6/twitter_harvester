@@ -17,7 +17,7 @@ from pprint import pprint as pp
 ##Command line args
 couchlogin = '/Users/lukejones/Developer/twitter_harvester/couchDB.txt'
 couchserver = 'http://115.146.95.161:5984/'
-database_dirty = 'brisbanetweets'
+database_dirty = 'brisbane-tracking'
 database_clean = 'brisbane_cleaned'
 
 def main():
@@ -38,19 +38,27 @@ def main():
 	count1 = 1 #processed docs
 	count2 = 0 #docs added new DB
 
+	#run through the first database, change the ID to the tweet_id
+	#add the doc to the new database and check if 
 	for doc in dirty_db:
 
 		tweet = dirty_db[doc]
 
-		tweet['_id'] = tweet['id_str']
+		#Just in case something goes wrong here just skip the tweet
+		try:
+			tweet['_id'] = tweet['id_str']
+			if tweet['_id'] not in clean_db:
+		 		clean_db.save(tweet)
+		 		count2 += 1
 
-		if tweet['_id'] not in clean_db:
-		 	clean_db.save(tweet)
-		 	count2 += 1
+			if (count1 % 100) == 0:
+				print 'Processed %s documents' %(count1)
+				count1 += 1
 
-		if (count1 % 100) == 0:
-			print 'Processed %s documents' %(count1)
-		count1 += 1
+		except Exception, e: #Could be anything, key error?
+			pass #just skip this tweet and keep on keepin on.
+
+
 
 	print 'Added %s documents to the %s database' %(count2, database_clean)
 
