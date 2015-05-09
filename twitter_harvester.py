@@ -54,7 +54,13 @@ def main():
 
 	# Constructor for streaming API
 	sapi = tweepy.streaming.Stream(auth=auth, listener=CustomStreamListener(api, db))    
-	sapi.filter(locations=location)
+	
+	while True:
+		try:
+			sapi.filter(locations=location)
+		#In case it throws some excption just restart the thread
+		except Exception, e:
+			pass	
 
 
 #override the base listener
