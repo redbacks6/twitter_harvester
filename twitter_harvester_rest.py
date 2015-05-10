@@ -4,7 +4,7 @@ Twitter harvester - crawler
 Author: Luke Jones
 Email: lukealexanderjones@gmail.com/lukej1@student.unimelb.edu.au
 Student ID: 654645
-Date: 8 May 2015
+Date: 10 May 2015
 """
 
 import tweepy
@@ -30,7 +30,7 @@ couchserver = sys.argv[3] #'http://115.146.95.161:5984/'
 database_ref = sys.argv[4] #'brisbane_cleaned'
 # database_tl = sys.argv[5] #'brisbane_timeline_test1' #Only using one database
 location = sys.argv[5] #'Brisbane, Queensland'
-timeline_dict = {}
+
 
 def main():
 
@@ -46,9 +46,11 @@ def main():
 	try:
 		db_users = couch[database_ref]
 	except Exception, e:
-		sys.exit('Reference database does not exist')
+		sys.exit('Reference database does not exist')	
 
-	# #Connect to the database in which the timeline will be stored
+	# Connect to the database in which the timeline will be stored
+	# If the same database as the users then just reference it here
+	db_tl = db_users
 	# try:
 	# 	db_tl = couch[database_tl]
 	# except Exception, e:
@@ -73,36 +75,42 @@ def main():
 	try:
 		while True:
 			#cycle through the reference database
-			for doc in db_users:
-				tweet = db_users[doc]
-				user_id = tweet['user']['id_str']
 
-				#store the user_id to save extra datbase lookups
-				process_user(api, user_id, timeline_dict, db_users)
+			count = 0
+
+			for row in db_users.view('_design/general/_view/user_id_view', group = True):
+
+				user_id = row.key
+
+				process_user(api, user_id, db_tl)
+
+				print 'Processed user_id %s' %(user_id)
 
 				## process each of the followers
 				# followers = api.followers(user_id = user_id)
 
 				# for follower in followers:
-				# 	process_user(api, follower, timeline_dict, db_users)
+
+				# 	if follower._json['location'] == 'Brisbane':
+
+				# 		follower_id = follower._json['id']
+
+				# 		process_user(api, follower_id, db_tl)
+
+				#  		print 'Processed user_id %s: follower_id %s' %(user_id, follower_id)
 
 	except KeyboardInterrupt:
 		print '\nKeyboard Interrupt\nShutting down the harvester'	
 
 #Check if the user has already been processed, then add the tweets to the database
-def process_user(api, user_id, user_dict, db):
+def process_user(api, user_id, db):
 	#store the user_id to save extra datbase lookups
-	if user_id not in user_dict:
-		#don't really care what value we have here
-		#Just want to store the id so we dont double up
-		user_dict[user_id] = 1
-
-		try:
-			user_statuses = api.user_timeline(id = user_id)
-			add_tweets_to_db(user_statuses, db)
-		#throws errors if the user has a protected timeline
-		except Exception, e:
-			pass	
+	try:
+		user_statuses = api.user_timeline(id = user_id)
+		add_tweets_to_db(user_statuses, db)
+	#throws errors if the user has a protected timeline
+	except Exception, e:
+		pass
 
 #Add the tweet to the database
 def add_tweets_to_db(statuses, db):
