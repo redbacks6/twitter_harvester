@@ -106,7 +106,7 @@ def main():
 def process_user(api, user_id, db):
 	#store the user_id to save extra datbase lookups
 	try:
-		user_statuses = api.user_timeline(id = user_id)
+		user_statuses = api.user_timeline(id = user_id, count = 200)
 		add_tweets_to_db(user_statuses, db)
 	#throws errors if the user has a protected timeline
 	except Exception, e:
@@ -128,6 +128,7 @@ def add_tweets_to_db(statuses, db):
 					#connecion to the database and try/except handles this anyway
 					try:
 						db.save(tweet)
+						print 'Tweet added to CouchDB: %s' %(tweet.text)
 					
 					#It will get upset if its already there so just pass
 					#as we need to add it anyway
